@@ -23,6 +23,7 @@ members = [
     "language/move-compiler",
     "language/move-compiler/transactional-tests",
     "language/move-core/types",
+    "language/move-llvm-ir",
     "language/move-ir/types",
     "language/move-ir-compiler",
     "language/move-ir-compiler/move-bytecode-source-map",

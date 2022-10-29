@@ -5,6 +5,7 @@
 
 #[macro_use(sp)]
 extern crate move_ir_types;
+extern crate core;
 
 mod attr_derivation;
 pub mod cfgir;

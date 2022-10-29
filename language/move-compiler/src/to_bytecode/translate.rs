@@ -224,31 +224,10 @@ fn module(
         synthetics: vec![],
     };
     let deps: Vec<&F::CompiledModule> = vec![];
-    let (module, source_map) = match move_ir_to_bytecode::compiler::compile_module(ir_module, deps)
-    {
-        Ok(res) => res,
-        Err(e) => {
-            compilation_env.add_diag(diag!(
-                Bug::BytecodeGeneration,
-                (ident_loc, format!("IR ERROR: {}", e))
-            ));
-            return None;
-        }
-    };
-    let function_infos = module_function_infos(&module, &source_map, &collected_function_infos);
-    let module = NamedCompiledModule {
-        address: addr_bytes,
-        name: module_name.value(),
-        module,
-        source_map,
-    };
-    Some(AnnotatedCompiledUnit::Module(AnnotatedCompiledModule {
-        loc: ident_loc,
-        address_name: addr_name,
-        module_name_loc: module_name.loc(),
-        named_module: module,
-        function_infos,
-    }))
+
+    let result = move_llvm_ir::translate_module(ir_module, deps);
+    println!("LLVM module translation result {}", result);
+    None
 }
 
 fn script(
@@ -656,8 +635,10 @@ fn function_body(
         })
         .map(|(v, ty)| (var(v), single_type(context, ty)))
         .collect();
+    println!("Locals {:?}", locals);
     let mut blocks = blocks_map.into_iter().collect::<Vec<_>>();
     blocks.sort_by_key(|(lbl, _)| *lbl);
+    println!("Blocks {:?}", blocks);
 
     let mut bytecode_blocks = Vec::new();
     for (idx, (lbl, basic_block)) in blocks.into_iter().enumerate() {
@@ -674,6 +655,8 @@ fn function_body(
 
     let loop_heads = loop_heads.into_iter().map(label).collect();
     remove_fallthrough_jumps::code(&loop_heads, &mut bytecode_blocks);
+
+    println!("Bytecode blocks {:?}", bytecode_blocks);
 
     (locals, bytecode_blocks)
 }
