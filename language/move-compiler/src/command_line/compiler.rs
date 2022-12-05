@@ -773,10 +773,8 @@ fn run(
             )
         }
         PassResult::CFGIR(cprog) => {
-            println!("Creating compiled units for GFGIR {:?}", cprog);
             let compiled_units =
                 to_bytecode::translate::program(compilation_env, pre_compiled_lib, cprog);
-            println!("{:?}", compiled_units);
             panic!("not compiling, in LLVM-IR generation mode instead");
         }
         PassResult::Compilation(_, _) => unreachable!("ICE Pass::Compilation is >= all passes"),
